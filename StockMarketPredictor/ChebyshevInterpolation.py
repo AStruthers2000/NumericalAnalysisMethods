@@ -17,9 +17,7 @@ for i in interpolation_points:
     xi.append(i[0])
     fxi.append(i[1])
 
-print("x values: {0}".format(xi))
-print("y values: {0}".format(fxi))
-print("====="*10)
+
 
 def chebyshev(n, x):
     if n == 0:
@@ -52,11 +50,29 @@ eqn, x_vals, y_vals = divided_differences(cheb_nodes, [f(i) for i in cheb_nodes]
 print(simplify(eqn))
 """
 
+
 plt.scatter(xi, fxi, label="Raw Data")
 x_lim = plt.xlim()
 y_lim = plt.ylim()
+"""
 
-eqn, x_vals, y_vals = divided_differences(xi, fxi, False, False)
+
+
+a = 0
+b = 4
+f = sp.sin(3*x**2+2*x+9)
+xi, fxi = evaluate(f, a, b, 1)
+xi_plot, fxi_plot = evaluate(f, a, b, 0.05)
+plt.plot(xi_plot, fxi_plot, label="Raw Data", color='black')
+x_lim = plt.xlim()
+y_lim = plt.ylim()
+"""
+
+print("x values: {0}".format(xi))
+print("y values: {0}".format(fxi))
+print("====="*10)
+
+eqn, x_vals, y_vals = divided_differences(xi, fxi, True, False)
 print("Lagrange equation:\n{0}".format(simplify(eqn)))
 plt.plot(x_vals, y_vals, label="Lagrange", color='blue')
 print("====="*10)
@@ -64,7 +80,7 @@ print("====="*10)
 n=len(fxi)-1
 cheb_nodes = nodes(xi[0], xi[-1], n)
 cheb_nodes.sort()
-eqn, x_vals, y_vals = divided_differences(cheb_nodes, [calc(eqn, i) for i in cheb_nodes], False, False)
+eqn, x_vals, y_vals = divided_differences(cheb_nodes, [calc(eqn, i) for i in cheb_nodes], True, False)
 print("Chebyshev equation:\n{0}".format(simplify(eqn)))
 plt.plot(x_vals, y_vals, label="Chebyshev", color='green')
 
