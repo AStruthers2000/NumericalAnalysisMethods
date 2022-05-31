@@ -23,9 +23,6 @@ def run():
         elif method == "t":
             print("Taylor method not implemented")
 
-        elif method == "nd":
-            print("Numerical differentiation not implemented")
-
         elif method == "l":
             print("Lagrange not implemented yet")
 
@@ -46,13 +43,24 @@ def run():
             spline(xi, fxi)
             print("=-=-=-" * 6 + "=")
 
+        elif method == "nd":
+            print("Numerical Derivative:")
+            fprime_est = estimate(fxi, h=xi[1]-xi[0])
+            plt.scatter(xi, fprime_est)
+            print(fprime_est)
+            
+
         else:
             print("Method not defined")
 
-    plt.xlim(x_lim)
-    plt.ylim(y_lim)
+    #plt.xlim(x_lim)
+    #plt.ylim(y_lim)
+    plt.xlim((-0.5,9))
+    plt.ylim((-3,2))
     plt.grid(which='major', axis='both')
     plt.legend(loc="upper left")
+    img = plt.imread("WhaleFlukeData.png")
+    plt.imshow(img, extent=[-0.5+0.25, 9+0.1, -3-0.15, 2+0.35])
     plt.show()
 
 
@@ -103,17 +111,18 @@ def get_y_values(xi):
             fxi = [float(f) for f in fxi.split(",")]
         else:
             try:
-                f = sp.sympify(fxi)
-                x = sp.symbols('x')
-                fxi = [f.subs(x, i) for i in xi]
-                print(f)
-                print(fxi)
-            except ValueError:
                 with open(fxi, 'r') as file:
                     fxi = []
                     for line in file:
                         if line.strip("\n"):
                             fxi.append(float(line.strip("\n").replace(" ", "")))
+                
+            except FileNotFoundError:
+                f = sp.sympify(fxi)
+                x = sp.symbols('x')
+                fxi = [f.subs(x, i) for i in xi]
+                print(f)
+                print(fxi)
     except FileNotFoundError:
         print("File not found")
         sys.exit()

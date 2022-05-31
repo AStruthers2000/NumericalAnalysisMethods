@@ -1,7 +1,7 @@
 import sys
 
 import matplotlib.pyplot as plt
-
+import sympy as sp
 from NumericalMethods import *
 
 
@@ -11,6 +11,9 @@ def run():
     plt.scatter(xi, fxi, label="Scatter of Data", color='black')
     x_lim = plt.xlim()
     y_lim = plt.ylim()
+
+    transaction_points_x = []
+    transaction_points_y = []
 
     tolerance = 0.05
     
@@ -56,6 +59,8 @@ def run():
                     if could_buy > 0:
                         print("Can buy")
                         plt.scatter(xi[i], fxi[i], color='blue')
+                        transaction_points_x += [xi[i]]
+                        transaction_points_y += [fxi[i]]
                         money -= could_buy * current_price
                         shares += could_buy
                 if deriv[-2] > 0 and deriv[-1] < 0:
@@ -63,6 +68,10 @@ def run():
                     if shares > 0:
                         print("Can sell")
                         plt.scatter([xi[i]], [fxi[i]], color='red')
+
+                        transaction_points_x += [xi[i]]
+                        transaction_points_y += [fxi[i]]
+                        
                         money += shares * current_price
                         shares = 0
             print("=====")
@@ -77,6 +86,23 @@ def run():
     print("The stock market rose: {0}".format(fxi[-1]-fxi[0]))
     print("We made ${0}".format(money-50000))
     print("We outperformed by ${0}".format((money-50000)-(fxi[-1]-fxi[0])))
+    print(transaction_points_x)
+    print(transaction_points_y)
+
+    print("Lagrange estimate =====================================")
+    eqn, x_vals, y_vals = divided_differences(transaction_points_x, transaction_points_y, False, False)
+    print(eqn)
+    print(sp.simplify(eqn))
+
+    plt.plot(x_vals, y_vals, label="Lagrange", color="green")
+
+
+    print("Hermite estimate ======================================")
+    eqn, x_vals, y_vals = hermite(transaction_points_x, transaction_points_y)
+    print(eqn)
+    print(sp.simplify(eqn))
+
+    plt.plot(x_vals, y_vals, label="Lagrange", color="green")
     
     plt.xlim(x_lim)
     plt.ylim(y_lim)

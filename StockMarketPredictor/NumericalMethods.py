@@ -122,3 +122,113 @@ def spline(xi, fxi):
     x_vals, y_vals = evaluate(eqns[-1], xi[-2], xi[-1], 0.1)
     plt.plot(x_vals, y_vals)
     return
+
+
+def divided_differences(xi, fxi, verbose, use_prime):
+	n = len(fxi)
+	orders = [[0 for _ in range(n)] for _ in range(n)]
+
+	# TODO: change h=1 to something better
+	fxi_estimate = []
+	hermite_ldd = xi[0] == xi[1]
+	for i in range(n):
+		if hermite_ldd:
+			if i % 2 == 0:
+				fxi_estimate.append(fxi[i])
+		else:
+			fxi_estimate.append(fxi[i])
+
+	fxi_prime = []
+	if use_prime: 	
+		if len(fxi_estimate) < 5:
+			fxi_prime = [float(f) for f in input("Enter the derivative values separated by a comma: ").replace(" ", "").split(",")]
+		else:
+			fxi_prime = estimate(fxi_estimate, 1)
+
+	# fxi_prime = [round(f, 10) for f in fxi_prime]
+
+	prime_count = 0
+	for i in range(n):
+		if i == 0:
+			orders[0] = fxi
+		else:
+			for x in range(n):
+				if x >= i:
+					try:
+						var = (orders[i - 1][x] - orders[i - 1][x - 1]) / (xi[x] - xi[x - i])
+					except ZeroDivisionError:
+						# get derivative at x_0 with numerical derivative method
+						var = fxi_prime[prime_count]
+						prime_count += 1
+
+					# TODO: change values here
+					"""
+					round_var = round(var, 20)
+					if round_var == 0:
+						round_var = round(var, 20)
+					"""
+					orders[i][x] = var
+
+	equation = ""
+	for i in range(n):
+		if i == 0:
+			eqn = "{0}".format(orders[0][0])
+		else:
+			eqn = "+{0}*".format(orders[i][i])
+			for j in range(i):
+				eqn += "(x-{0})*".format(xi[j])
+			eqn += ")"
+			eqn = eqn.replace("*)", "")
+
+		equation += eqn
+
+	equation = sp.sympify(equation)
+
+	equal_count = 0
+	data = [[] for _ in range(n)]
+	for i in range(n):
+		f = round(float(fxi[i]), 10)
+		p = round(float(calc(equation, xi[i])), 10)
+		equal_count += abs(f - p) < 0.01
+		data[i] = [xi[i], f, p, abs(f - p) < 0.01]
+
+	if verbose:
+		print("Numerically Approximated Derivative Values at x_i:")
+		print(fxi_prime)
+
+		print("Divided Differences triangle:")
+		for row in orders:
+			print(row)
+
+		print("=-=-=-" * 6 + "=")
+		print("Derived equation:")
+		print(equation)
+
+		print("=-=-=-" * 6 + "=")
+		print("Equality check:")
+		print(tabulate(data, headers=["x", "Real Value", "Calculated Value", "Equality"]))
+		print("Are all given points equal: {0}".format("Yes" if equal_count == n else "No"))
+
+		if equal_count != n:
+			print("Go to the TODO and change the round value if points don't all match up")
+
+	try:
+		x_vals, y_vals = evaluate(equation, xi[0] - (xi[1]-xi[0]), xi[-1] + (xi[1]-xi[0]), (xi[1]-xi[0])/10)
+	except ZeroDivisionError:
+		x_vals, y_vals = evaluate(equation, xi[0] - (xi[2] - xi[0]), xi[-1] + (xi[2] - xi[0]), (xi[2] - xi[0]) / 20)
+
+	return equation, x_vals, y_vals
+
+def hermite(xi, fxi):
+	xi_hermite = []
+	fxi_hermite = []
+
+	for x in xi:
+		xi_hermite.append(x)
+		xi_hermite.append(x)
+	for f in fxi:
+		fxi_hermite.append(f)
+		fxi_hermite.append(f)
+
+	eqn, x_vals, y_vals = divided_differences(xi_hermite, fxi_hermite, False, True)
+	return eqn, x_vals, y_vals

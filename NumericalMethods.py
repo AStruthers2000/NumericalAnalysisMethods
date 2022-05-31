@@ -227,7 +227,7 @@ def spline(xi, fxi):
 
 	for i in range(len(eqns)):
 		print("S_{0} = {1}".format(i, eqns[i]))
-		x_vals, y_vals = evaluate(eqns[i], xi[i], xi[i+1], 0.1)
+		x_vals, y_vals = evaluate(eqns[i], xi[i], xi[i+1], 0.05)
 		plt.plot(x_vals, y_vals)
 
 
