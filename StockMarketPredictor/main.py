@@ -89,6 +89,7 @@ def run():
     print(transaction_points_x)
     print(transaction_points_y)
 
+    """
     print("Lagrange estimate =====================================")
     eqn, x_vals, y_vals = divided_differences(transaction_points_x, transaction_points_y, False, False)
     print(eqn)
@@ -103,6 +104,7 @@ def run():
     print(sp.simplify(eqn))
 
     plt.plot(x_vals, y_vals, label="Lagrange", color="green")
+    """
     
     plt.xlim(x_lim)
     plt.ylim(y_lim)

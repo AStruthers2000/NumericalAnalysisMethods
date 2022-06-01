@@ -114,14 +114,14 @@ def spline(xi, fxi):
         eqns[i] = eqn
         
     for i in range(len(eqns)):
-        print("({2}<= x <= {3}): S_{0} = {1}".format(i, eqns[i], xi[i], xi[i+1]))
+        #print("({2}<= x <= {3}): S_{0} = {1}".format(i, eqns[i], xi[i], xi[i+1]))
         x_vals, y_vals = evaluate(eqns[i], xi[i], xi[i+1], 0.1)
         plt.plot(x_vals, y_vals)
 
 
     x_vals, y_vals = evaluate(eqns[-1], xi[-2], xi[-1], 0.1)
     plt.plot(x_vals, y_vals)
-    return
+    return xi, eqns
 
 
 def divided_differences(xi, fxi, verbose, use_prime):
@@ -130,7 +130,7 @@ def divided_differences(xi, fxi, verbose, use_prime):
 
 	# TODO: change h=1 to something better
 	fxi_estimate = []
-	hermite_ldd = xi[0] == xi[1]
+	hermite_ldd = use_prime
 	for i in range(n):
 		if hermite_ldd:
 			if i % 2 == 0:
@@ -156,6 +156,8 @@ def divided_differences(xi, fxi, verbose, use_prime):
 				if x >= i:
 					try:
 						var = (orders[i - 1][x] - orders[i - 1][x - 1]) / (xi[x] - xi[x - i])
+						if var == sp.nan:
+                                                    raise ZeroDivisionError
 					except ZeroDivisionError:
 						# get derivative at x_0 with numerical derivative method
 						var = fxi_prime[prime_count]
@@ -230,5 +232,6 @@ def hermite(xi, fxi):
 		fxi_hermite.append(f)
 		fxi_hermite.append(f)
 
-	eqn, x_vals, y_vals = divided_differences(xi_hermite, fxi_hermite, False, True)
+	eqn, x_vals, y_vals = divided_differences(xi_hermite, fxi_hermite, True, True)
+	
 	return eqn, x_vals, y_vals
